@@ -1,0 +1,83 @@
+﻿<!DOCTYPE html>
+@{
+    Layout = "~/_Layout.cshtml";
+    Page.Title = "Delete Scripture";
+
+    var book = "";
+    var chapter = "";
+    var verse = "";
+    var note = "";
+    var scriptureId = "";
+    var date = DateTime.Now;
+    if (!IsPost)
+    {
+        if (!Request.QueryString["ID"].IsEmpty() && Request.QueryString["ID"].IsInt())
+        {
+            scriptureId = Request.QueryString["ID"];
+            var db = Database.Open("ScriptureDatabase");
+            var dbCommand = "SELECT * FROM scriptures WHERE ID = @0";
+            var row = db.QuerySingle(dbCommand, scriptureId);
+            if (row != null)
+            {
+                book = row.Book;
+                chapter = row.Chapter;
+                verse = row.Verse;
+                note = row.Note;
+                date = row.Date;
+            }
+            else
+            {
+                Validation.AddFormError("No scripture was found with that ID");
+            }
+
+        }
+        else
+        {
+            Validation.AddFormError("No scripture was selected.");
+        }
+    }
+    if (IsPost && !Request["buttonSubmit"].IsEmpty())
+    {
+        scriptureId = Request.Form["scriptureId"];
+        var db = Database.Open("ScriptureDatabase");
+        var deleteCommand = "DELETE FROM scriptures WHERE ID = @0";
+        db.Execute(deleteCommand, scriptureId);
+        Response.Redirect("~/scriptMain");
+    }
+}
+<html>
+<head>
+    <title>Delete Scripture</title>
+</head>
+<body>
+    <h1>Delete a Scripture</h1>
+    @Html.ValidationSummary()
+    <p><a href="~/scriptMain">Return to scripture listing</a></p>
+    <form method="post">
+        <fieldset>
+            <legend>Scripture Information</legend>
+            <p>
+                <span>Book:</span>
+                <span>@book</span>
+            </p>
+            <p>
+                <span>Chapter: </span>
+                <span>@chapter</span>
+            </p>
+            <p>
+                <span>Verse: </span>
+                <span>@verse</span>
+            </p>
+            <p>
+                <span>Note: </span>
+                <span>@note</span>
+            </p>
+            <p>
+                <span>Date:</span>
+                <span>@date</span>
+            <input type="hidden" name="scriptureId" value="@scriptureId" />
+            <p><input type="submit" name="buttonSubmit" value="Permanently delete record" /></p>
+        </fieldset>
+    </form>
+</body>
+</html>

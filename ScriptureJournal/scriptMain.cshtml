@@ -1,0 +1,93 @@
+﻿<!DOCTYPE html>
+@{
+    Layout = "~/_Layout.cshtml";
+    Page.Title = "List Scriptures";
+    var db = WebMatrix.Data.Database.Open("ScriptureDatabase");
+
+    var selectCommand = "SELECT * FROM scriptures";
+    var searchTerm = "";
+
+    if (!Request.QueryString["searchBook"].IsEmpty())
+    {
+        selectCommand = "SELECT * FROM scriptures WHERE Book = @0";
+        searchTerm = Request.QueryString["searchBook"];
+    }
+    if (!Request.QueryString["searchNote"].IsEmpty())
+    {
+        selectCommand = "SELECT * FROM scriptures WHERE Note LIKE @0";
+        searchTerm = "%" + Request["searchNote"] + "%";
+    }
+    var selectedData = db.Query(selectCommand, searchTerm);
+    var grid = new WebGrid(source: selectedData, defaultSort: "Book",
+        rowsPerPage: 5);
+
+}
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Scriptures</title>
+    <style type="text/css">
+        .grid {
+            margin: 4px;
+            border-collapse: collapse;
+            width: 600px;
+        }
+
+            .grid th, .grid td {
+                border: 1px solid #C0C0C0;
+                padding: 5px;
+            }
+
+        .head {
+            background-color: #e8e8e8;
+            font-weight: bold;
+            color: #FFF;
+        }
+
+        .alt {
+            background-color: #e8e8e8;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Scriptures</h1>
+   <form method="get">
+       <div><label for="searchBook">Book to look for:</label>
+            <input type="text" name="searchBook"
+                value="@Request.QueryString["searchBook"]" />
+            <input type="submit" value="Search Book" /><br />
+            (Leave blank to list all)<br />
+       </div>
+    </form>
+    <form method="get">
+    <div>
+        <label for="searchNote">The Note contains the word: </label>
+        <input type="text" name="searchNote"
+               value="@Request.QueryString["searchNote"]" />
+        <input type="submit" value="Search Note" /><br />
+    </div>
+        </form>
+
+    <div>
+        @grid.GetHtml(
+        tableStyle:"grid",
+        headerStyle:"head",
+        alternatingRowStyle:"alt",
+        columns: grid.Columns(
+        grid.Column("Book"),
+        grid.Column("Chapter"),
+        grid.Column("Verse"),
+        grid.Column("Note"),
+        grid.Column("Date"),
+        grid.Column(format: @<a href="~/EditScript.cshtml?id=@item.ID">Edit</a>),
+                 grid.Column(format: @<a href="~/DeleteScript.cshtml?id=@item.ID">Delete</a>)
+
+                     )
+                     )
+    </div>
+    <p><a href="~/AddScript.cshtml">Add a Scripture</a></p>
+
+</body>
+</html>
+

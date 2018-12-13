@@ -1,0 +1,22 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>@Page.Title</title>
+    <link href="~/Style/scriptureStyle.css" rel="stylesheet" type="text/css" />
+
+</head>
+<body>
+    <div id="container">
+        <div id="header">
+            <h1>My Scripture Journal</h1>
+        </div>
+        <div id="main">
+            @RenderBody()
+        </div>
+        <div id="footer">
+            &copy; @DateTime.Now.Year My Scripture Journal
+        </div>
+    </div>
+
+</body>
+</html>
